@@ -1,76 +1,69 @@
 <?php
+include 'config.php'; 
 
-// 1-
-// #function nl2br
-echo nl2br("hello\nworld");
-echo "<hr>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $gender = $_POST['gender'] ??'' ; 
+    $receive_emails = isset($_POST['receive_emails']) ? 1 : 0;
 
-// 2-
-
-// using pre tag 
-
-echo "<pre>";
-print_r($_SERVER);
-echo "</pre>";
-echo "<hr>";
-
-
-// 3-three function 
-
-//  1.(odr) retern the ascii code for firsl letter
-
-echo ord("hello");  
-echo "<hr>";
-
-//2.(str_repeat)Repeats a string a specified number of times
-echo str_repeat("<pre>php</pre> " ,4);
-echo "<hr>";
-
-// 3.(strrve)reverse a string
-
-echo strrev("hello");  
-echo "<hr>";
+    
+    if (!empty($name) && !empty($email) && !empty($gender)) {
+        
+        // inserting
+        $stmt = $conn->prepare("INSERT INTO users (name, email, gender, receive_emails) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sssi", $name, $email, $gender, $receive_emails);
 
 
+        if ($stmt->execute()) {
+            // Redirect to success page or view page
+            header("Location: view.php?id=" . $stmt->insert_id);
+            exit;
+        } else {
+            echo "Error: " . $stmt->error;
+        }
 
-// 4-
-$array = [12, 45, 10, 25]; 
-
-$sum = array_sum($array);
-echo nl2br("Sum: $sum \n");
-
-$avg = $sum / count($array);
-echo nl2br("Average: $avg\n") ;
-// sort desc
-rsort($array);
-print_r($array);
-
-echo "<hr>";
-
-// 5-
-
-$array = ["Sara" => 31, "John" => 41, "Alaa" => 39, "Ramy" => 40];
-// asc by value
-asort($array);
-echo nl2br("\n \n \n \nasc  by Value:  ");
-print_r($array);
-
-
-// b) asc by key
-ksort($array);
-echo nl2br( "\nasc  by Key: ");
-print_r($array);
-
-// c) desc by value
-arsort($array);
-echo nl2br( "\n desc by Value: ");
-print_r($array);
-;
-
-// d) desc by key
-krsort($array);
-echo nl2br( "\ndesc by Key:");
-print_r($array);
-
-
+        $stmt->close();
+    } else {
+        echo "All fields are required!";
+    }
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Form</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">User Registration Form</h1>
+        <form action="" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+            <label>Gender</label><br>
+            <input type="radio" name="gender" value="male" required> Male
+            <input type="radio" name="gender" value="female" required> Female
+
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" name="receive_emails" id="receive_emails">
+                <label for="receive_emails">Receive Emails from us</label>
+            </div>
+            <button type="submit" class ="btn btn-primary"  style="background: #28a745; ">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
